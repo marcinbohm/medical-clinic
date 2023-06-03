@@ -1,0 +1,153 @@
+﻿@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Dictionaries
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+@using PrzychodniaMedycznaMB_FE.GQL.Models
+
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Dodaj użytkownika
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+            <MudGrid Class="mt-2">
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                        <MudSelect @bind-Value="tmpUserType" Label="Wybierz typ użytkownika" AdornmentColor="Color.Secondary">
+                                <MudSelectItem Value="1"> Administrator </MudSelectItem>
+                                <MudSelectItem Value="2"> Pielęgniarka </MudSelectItem>
+                                <MudSelectItem Value="3"> Lekarz </MudSelectItem>
+                                <MudSelectItem Value="4"> Rejestratorka </MudSelectItem>
+                                <MudSelectItem Value="5"> Pacjent</MudSelectItem>
+                        </MudSelect>
+
+                    </MudItem>
+           
+                     <MudItem lg="6" md="6" sm="6" xs="12">
+
+                             <MudAutocomplete T="Location" Label="Wybierz poradnie" @bind-Value="tmpLocation"  SearchFunc="@SearchLocations" ToStringFunc="@(e=> e==null?null : $"{e.name} ({e.postalCode}, {e.city})")">
+                                <NoItemsTemplate>
+                                    <MudText Align="Align.Center" Class="px-4 py-1">
+                                        Lista poradni jest pusta
+                                    </MudText>
+                                </NoItemsTemplate>
+                            </MudAutocomplete>
+
+                     </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newPatient.firstname" Label="Imię" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newPatient.lastname" Label="Nazwisko" Variant="Variant.Text"/>
+
+                    </MudItem>
+                    
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newPatient.email" Label="Email" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newPatient.login" Label="Login" Variant="Variant.Text" Disabled="@disable"/>
+
+                    </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newPatient.password" Label="Hasło" Variant="Variant.Text" Disabled="@disable"/>
+
+                    </MudItem>
+
+            </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Anuluj</MudButton>
+        <MudButton Color="Color.Success" OnClick="AddNewUser"><MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Dodaj użytkownika</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    private UserInput newPatient = new();
+
+    public Location loc { get; set; } = default!;
+
+    public Location tmpLocation { 
+        get
+        {
+            return loc;
+        }
+        set
+        {
+            loc = value;
+        }
+    }
+
+    public bool disable = false;
+
+
+    public int userType { get; set; } = 1;
+
+
+    public int tmpUserType { 
+        get
+        {
+            return userType;
+        }
+        set
+        {
+            userType = value;
+            if((int)userType == 5)
+            {
+                disable = true;
+            }
+            else
+            {
+                disable = false;
+            }
+        } 
+    }
+
+    private List<Location>? locations { get; set; } = new();
+
+    private async Task<IEnumerable<Location>?> SearchLocations(string value)
+    {
+        return await _serverHelper.GetLocationList();
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task AddNewUser()
+    {
+        newPatient.userId = null;
+        if(tmpLocation.locationId is not null)
+        {
+              newPatient.locationId = (int)tmpLocation.locationId;
+        }
+        newPatient.userType = tmpUserType;
+
+
+        bool result = await _serverHelper.AddUser(newPatient);
+
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+}

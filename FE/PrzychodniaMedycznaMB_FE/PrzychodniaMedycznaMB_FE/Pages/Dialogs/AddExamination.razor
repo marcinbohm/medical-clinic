@@ -1,0 +1,78 @@
+﻿@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Dodaj nowe wyniki badań
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+            <MudGrid Class="mt-2">
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newExamination.name" Label="Nazwa badania" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newExamination.description" Label="Wynik/Opis" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+                    
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newExamination.icd9" Label="Wykonana procedura medyczna" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="DateTime?" Format="s" @bind-Value="newExamination.executionDate" Label="Data godzina badania" InputType="InputType.DateTimeLocal"/>
+
+                    </MudItem>
+
+            </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Anuluj</MudButton>
+        <MudButton Color="Color.Success" OnClick="AddNewExamination"><MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Dodaj wynik badań</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    [Parameter] public int? encounterId { get; set; }
+
+    private ExaminationInput newExamination = new();
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task AddNewExamination()
+    {
+        newExamination.examinationId = null;
+        newExamination.encounterId = encounterId;
+        newExamination.createdAt = DateTime.Now;
+        newExamination.createdBy = ProjectVariables.CurrentUserId;
+        
+
+
+        bool result = await _serverHelper.AddExamination(newExamination);
+
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+}

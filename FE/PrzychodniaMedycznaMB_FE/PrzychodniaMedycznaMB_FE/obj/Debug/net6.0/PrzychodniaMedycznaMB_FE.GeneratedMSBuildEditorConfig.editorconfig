@@ -1,0 +1,93 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = PrzychodniaMedycznaMB_FE
+build_property.RootNamespace = PrzychodniaMedycznaMB_FE
+build_property.ProjectDir = C:\Workspace\php_AS\MB_Medical_Clinic\FE\PrzychodniaMedycznaMB_FE\PrzychodniaMedycznaMB_FE\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Workspace\php_AS\MB_Medical_Clinic\FE\PrzychodniaMedycznaMB_FE\PrzychodniaMedycznaMB_FE
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Authorization/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aG9yaXphdGlvblxMb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Dialogs/AddExamination.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nc1xBZGRFeGFtaW5hdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Dialogs/AddPatient.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nc1xBZGRQYXRpZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Dialogs/AddUser.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nc1xBZGRVc2VyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Dialogs/AddVisit.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nc1xBZGRWaXNpdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Dialogs/ChangePassword.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nc1xDaGFuZ2VQYXNzd29yZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/FetchData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Patients.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGF0aWVudHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Users.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/VisitDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmlzaXREZXRhaWxzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Pages/Visits.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmlzaXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Shared/BarLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEJhckxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Shared/LoginLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Shared/SurveyPrompt.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-1byuskvd41
+
+[C:/Workspace/php_AS/MB_Medical_Clinic/FE/PrzychodniaMedycznaMB_FE/PrzychodniaMedycznaMB_FE/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-xqwy8ne86g

@@ -1,0 +1,334 @@
+# java.util.Date implementation
+scalar Date
+
+# java.time.LocalDate implementation
+scalar LocalDate
+
+# java.time.LocalDateTime implementation
+scalar LocalDateTime
+
+# java.time.LocalTime implementation
+scalar LocalTime
+
+# javal.time.OffsetDateTime implementation
+scalar OffsetDateTime
+
+enum Direction {
+    ASC, DESC
+}
+
+input SortOrder {
+    property: String!
+    direction: Direction!
+}
+
+type Query {
+    category(categoryId: ID!): Category
+    encounter(encounterId: ID!): Encounter
+    encounterPageByLocationId(locationId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): EncounterPage
+    encounterPageByLocationIdAndUserPatient(locationId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): EncounterPage
+    examination(examinationId: ID!): Examination
+    examinationPageByLocationId(locationId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): ExaminationPage
+    examinationPageByEncounterId(encounterId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): ExaminationPage
+    location(locationId: ID!): Location
+    locationList: [Location]
+    permission(permissionId: ID!): Permission
+    session(sessionId: ID!): Session
+    sessionByUserId(userId: ID!): Session
+    user(userId: ID!): User
+    userByLogin(login: String!): User
+    userPageByLocationIdAndUserPatient(locationId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): UserPage
+    userPageByLocationIdAndUserDoctor(locationId: ID!, page: Int!, size: Int!, orderBy: [SortOrder]): UserPage
+    usersList: [User]
+    class(classId: ID!): Class
+    currentUser: CurrentUser
+}
+
+type OperationStatus {
+    targetClassName: String
+    operationName: String
+    success: Boolean
+    recordId: Int
+    msgList: [String]
+}
+
+type Mutation {
+    addCategory(data: CategoryInput!): OperationStatus
+    updateCategory(categoryId: ID!, data: CategoryInput!): OperationStatus
+    deleteCategory(categoryId: ID!): OperationStatus
+    addEncounter(data: EncounterInput!): OperationStatus
+    updateEncounter(encounterId: ID!, data: EncounterInput!): OperationStatus
+    deleteEncounter(encounterId: ID!): OperationStatus
+    addExamination(data: ExaminationInput!): OperationStatus
+    updateExamination(examinationId: ID!, data: ExaminationInput!): OperationStatus
+    deleteExamination(examinationId: ID!): OperationStatus
+    addLocation(data: LocationInput!): OperationStatus
+    updateLocation(locationId: ID!, data: LocationInput!): OperationStatus
+    deleteLocation(locationId: ID!): OperationStatus
+    addPermission(data: PermissionInput!): OperationStatus
+    updatePermission(permissionId: ID!, data: PermissionInput!): OperationStatus
+    deletePermission(permissionId: ID!): OperationStatus
+    addSession(data: SessionInput!): OperationStatus
+    updateSession(sessionId: ID!, data: SessionInput!): OperationStatus
+    deleteSession(sessionId: ID!): OperationStatus
+    addUser(data: UserInput!): OperationStatus
+    updateUser(userId: ID!, data: UserInput!): OperationStatus
+    deleteUser(userId: ID!): OperationStatus
+    addClass(data: ClassInput!): OperationStatus
+    updateClass(classId: ID!, data: ClassInput!): OperationStatus
+    deleteClass(classId: ID!): OperationStatus
+
+    resetPassword(userId: ID!, oldPassword: String!, newPassword: String!): OperationStatus
+}
+
+type User {
+    userId: ID
+    locationId: ID
+    firstname: String
+    lastname: String
+    email: String
+    login: String
+    password: String
+    active: Boolean
+    blocked: Boolean
+    expireAccountDate: LocalDate
+    expirePasswordDate: LocalDate
+    lastLoginTime: LocalDateTime
+    userType: Int
+
+    location: Location
+}
+
+type UserPage {
+    content: [User]
+    totalElements: Int
+    totalPages: Int
+}
+
+input UserInput {
+    userId: ID
+    locationId: ID
+    firstname: String
+    lastname: String
+    email: String
+    login: String
+    password: String
+    active: Boolean
+    blocked: Boolean
+    expireAccountDate: LocalDate
+    expirePasswordDate: LocalDate
+    lastLoginTime: LocalDateTime
+    userType: Int
+}
+
+type Session {
+    sessionId: ID
+    userId: ID
+    ticket: String
+    lastActive: LocalDateTime
+    refreshTicket: String
+
+    user: User
+}
+
+type SessionPage {
+    content: [Session]
+    totalElements: Int
+    totalPages: Int
+}
+
+input SessionInput {
+    sessionId: ID
+    userId: ID
+    ticket: String
+    lastActive: LocalDateTime
+    refreshTicket: String
+}
+
+type Permission {
+    permissionId: ID
+    categoryId: ID
+    allowRead: Boolean
+    allowAdd: Boolean
+    allowModify: Boolean
+    allowDelete: Boolean
+    classId: ID
+
+    category: Category
+    permissionClass: Class
+}
+
+type PermissionPage {
+    content: [Permission]
+    totalElements: Int
+    totalPages: Int
+}
+
+input PermissionInput {
+    permissionId: ID
+    categoryId: ID
+    allowRead: Boolean
+    allowAdd: Boolean
+    allowModify: Boolean
+    allowDelete: Boolean
+    classId: ID
+}
+
+type Location {
+    locationId: ID
+    name: String
+    postalCode: String
+    city: String
+    street: String
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+
+    locationUsersList: [User]
+}
+
+type LocationPage {
+    content: [Location]
+    totalElements: Int
+    totalPages: Int
+}
+
+input LocationInput {
+    locationId: ID
+    name: String
+    postalCode: String
+    city: String
+    street: String
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+}
+
+type Class {
+    classId: ID
+    classCode: String
+    name: String
+    description: String
+    active: Boolean
+    adminClass: Boolean
+
+    classPermissionList: [Permission]
+    classUserSet: [User]
+}
+
+type ClassPage {
+    content: [Class]
+    totalElements: Int
+    totalPages: Int
+}
+
+input ClassInput {
+    classId: ID
+    classCode: String
+    name: String
+    description: String
+    active: Boolean
+    adminClass: Boolean
+}
+
+type Category {
+    categoryId: ID
+    code: String
+    description: String
+    helpDescription: String
+}
+
+type CategoryPage {
+    content: [Category]
+    totalElements: Int
+    totalPages: Int
+}
+
+input CategoryInput {
+    categoryId: ID
+    code: String
+    description: String
+    helpDescription: String
+}
+
+type Examination {
+    examinationId: ID
+    encounterId: ID
+    name: String
+    description: String
+    icd9: String
+    executionDate: LocalDateTime
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+}
+
+type ExaminationPage {
+    content: [Examination]
+    totalElements: Int
+    totalPages: Int
+}
+
+input ExaminationInput {
+    examinationId: ID
+    encounterId: ID
+    name: String
+    description: String
+    icd9: String
+    executionDate: LocalDateTime
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+}
+
+type Encounter {
+    encounterId: ID
+    patientId: ID
+    practitionerId: ID
+    description: String
+    dateFrom: LocalDateTime
+    dateTo: LocalDateTime
+    locationId: ID
+    icd10: String
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+
+    patient: User
+    practitioner: User
+    location: Location
+}
+
+type EncounterPage {
+    content: [Encounter]
+    totalElements: Int
+    totalPages: Int
+}
+
+input EncounterInput {
+    encounterId: ID
+    patientId: ID
+    practitionerId: ID
+    description: String
+    dateFrom: LocalDateTime
+    dateTo: LocalDateTime
+    locationId: ID
+    icd10: String
+    createdAt: LocalDateTime
+    createdBy: ID
+    updatedAt: LocalDateTime
+    updatedBy: ID
+}
+
+type CurrentUser {
+    id: ID
+    email: String
+    firstName: String
+    lastName: String
+    userType: Int
+}

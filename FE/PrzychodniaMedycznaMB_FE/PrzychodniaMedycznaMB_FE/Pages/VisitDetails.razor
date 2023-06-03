@@ -1,0 +1,172 @@
+﻿@page "/visits_details"
+@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+@using PrzychodniaMedycznaMB_FE.Pages.Dialogs
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject NavigationManager NavigationManager
+
+<style>
+    .loading_data {
+    margin-bottom: 10%;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+</style>
+<MudGrid Style="margin-top:5em;" Justify="Justify.Center">
+    <MudItem lg="12" md="12" sm="12" xs="12">
+        <MudCard Elevation="5" Class="table_card" >
+            <MudCardContent>
+                <MudGrid>
+                     <MudItem lg="6" md="6" sm="6" xs="6">
+                         <MudText Align="Align.Left" Class="mt-3"><b>Data wizyty:</b> @encounter.dateFrom.GetValueOrDefault().ToString("dd-MM-yyyy HH:mm") </MudText>
+                     </MudItem>
+                     <MudItem lg="6" md="6" sm="6" xs="6">
+                         <MudText Align="Align.Right" Class="mt-3"><b>Pacjent:</b> @encounter.patient?.firstname @encounter.patient?.lastname </MudText>
+                     </MudItem>
+                     <MudItem lg="12" md="12" sm="12" xs="12">
+                         <MudTextField Class="mt-3" T="string" ReadOnly="@read" @bind-Value="encounter.icd10" Label="Rozpoznanie zasadnicze" Variant="Variant.Text"/>
+                     </MudItem>
+                     <MudItem lg="12" md="12" sm="12" xs="12">
+                         <MudTextField Class="mt-3" T="string" ReadOnly="@read" @bind-Value="encounter.description" Label="Opis wizyty" Variant="Variant.Text" Lines="5"/>
+                     </MudItem>
+                        @if(encounter.dateTo is null)
+                        {
+                            <MudItem lg="12" md="12" sm="12" xs="12">
+                                 <MudCheckBox @bind-Checked="@zakoncz" Color="Color.Primary">Zakończ wizytę</MudCheckBox>
+                            </MudItem>
+                        }
+                    
+
+                     <MudItem lg="12" md="12" sm="12" xs="12">
+
+                        @if(wynikiBadan is not null && wynikiBadan.Count > 0)
+                        {
+                            <MudText Typo="Typo.h5">Wykonane badania</MudText>
+                            <MudList Class="mt-3">
+                                @foreach(var wynik in wynikiBadan)
+                                {
+                                    <MudListItem> @wynik.executionDate.GetValueOrDefault().ToString("dd-MM-yyyy HH:mm") <b>@wynik.name</b> @wynik.description</MudListItem>
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <div class="loading_data">
+                            <MudChip Variant="Variant.Text" Color="Color.Info">Brak dostępnych wyników badań</MudChip>
+                            </div>
+                        }
+                    </MudItem>
+                     <MudItem lg="12" md="12" sm="12" xs="12" Class="mt-5">
+                          <div style="float:right;">
+                              <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@Cancel"> 
+                                    <MudIcon Icon="@Icons.Material.Filled.Cancel" Size="Size.Medium" /> &nbsp Powrót do listy wizyt
+                              </MudButton>
+                              <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@OpenDialog"> 
+                                    <MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Dodaj wyniki badań
+                              </MudButton>
+                              <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Update"> 
+                                    <MudIcon Icon="@Icons.Material.Filled.Save" Size="Size.Medium"/> &nbsp Zapisz zmiany
+                              </MudButton>
+                          </div>
+                     </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    private Encounter encounter = ProjectVariables.getCurrentEncounter();
+
+    private List<Examination>? wynikiBadan {get; set;} = default!;
+
+    private bool zakoncz { get; set;} = false;
+
+    private bool read {get; set;} = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(encounter.dateTo is not null)
+        {
+            read = true;
+        }
+
+        wynikiBadan = await _serverHelper.GetExaminationPageByEncounterId(encounter.encounterId, 0, 100);
+    }
+
+    private async Task Update()
+    {
+        EncounterInput updatedEnc = new();
+        updatedEnc.encounterId = encounter.encounterId;
+        updatedEnc.createdAt = encounter.createdAt;
+        updatedEnc.createdBy = encounter.createdBy;
+        updatedEnc.dateFrom = encounter.dateFrom;
+        updatedEnc.description = encounter.description;
+        updatedEnc.icd10 = encounter.icd10;
+        updatedEnc.patientId = encounter.patientId;
+        updatedEnc.practitionerId = encounter.practitionerId;
+        updatedEnc.updatedBy = ProjectVariables.CurrentUserId;
+        updatedEnc.locationId = encounter.locationId;
+        updatedEnc.updatedAt = DateTime.Now;
+        if(zakoncz)
+        {
+            updatedEnc.dateTo = DateTime.Now;
+        }
+
+        bool result = await _serverHelper.UpdateEncounter(encounter.encounterId, updatedEnc);
+        await ShowAlert(result);
+
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo(ProjectVariables.PlannedVisitsURL);
+    }
+
+    private async Task OpenDialog()
+        {
+
+            var parameters = new DialogParameters { ["encounterId"]= encounter.encounterId };
+            var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+            // var dialog = await Dialog.ShowAsync<AddVisit>("Zaplanuj wizytę", parameters, options);
+            var dialog = await Dialog.ShowAsync<AddExamination>("Dodaj wyniki badań", parameters, options);
+
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                await ShowAlert((bool)result.Data);
+                await Task.Delay(500);
+            }
+        }
+
+     private async Task ShowAlert(bool result)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+
+            if (result)
+            {
+                Snackbar.Add("Zaktualizowano dane wizyty", Severity.Success);
+                wynikiBadan = await _serverHelper.GetExaminationPageByEncounterId(encounter.encounterId, 0, 100);
+
+            }
+            else
+            {
+                Snackbar.Add("Nie udało się zaktualizować danych", Severity.Error);
+            }
+
+            await Task.Delay(500);
+        }
+
+}

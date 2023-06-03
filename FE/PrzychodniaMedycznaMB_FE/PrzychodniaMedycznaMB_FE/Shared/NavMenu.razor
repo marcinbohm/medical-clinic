@@ -1,0 +1,36 @@
+﻿@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+
+<MudDrawer @bind-Open="SideBarOpen" Elevation="4" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Mini" PreserveOpenState="false" Breakpoint="Breakpoint.Xs">
+
+    <MudNavMenu Class="mt-8" Margin="Margin.Normal" >
+        <MudNavLink Match="NavLinkMatch.All" Href="@ProjectVariables.PlannedVisitsURL" Icon="@Icons.Material.Filled.CalendarViewMonth" IconColor="Color.Primary" >Zaplanowane wizyty</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Href="@ProjectVariables.PatientsURL" Icon="@Icons.Material.Filled.Book" IconColor="Color.Primary">Pacjenci</MudNavLink>
+        <!--<MudNavLink Match="NavLinkMatch.All" Href="@ProjectVariables.PlannedVisitsURL" Icon="@Icons.Material.Filled.BarChart" IconColor="Color.Primary">Wyniki badań</MudNavLink>-->
+        
+        @if(userType == 1)
+        {
+            <MudNavLink Match="NavLinkMatch.All" Href="@ProjectVariables.UsersURL" Icon="@Icons.Material.Filled.SupervisedUserCircle" IconColor="Color.Primary">Użytkownicy</MudNavLink>
+        }
+        
+    </MudNavMenu>
+
+</MudDrawer>
+
+@code {
+
+    [Parameter]
+    public bool SideBarOpen { get; set; }
+
+    private int? userType { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if(ProjectVariables.CurrentUserType is not null)
+        {
+             userType = ProjectVariables.CurrentUserType;
+        }
+       
+    }
+
+}

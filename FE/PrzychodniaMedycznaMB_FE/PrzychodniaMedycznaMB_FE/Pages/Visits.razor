@@ -1,0 +1,96 @@
+﻿@page "/visits"
+
+<PageTitle>Zaplanowane wizyty</PageTitle>
+
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+@using PrzychodniaMedycznaMB_FE.Pages.Authorization
+@using PrzychodniaMedycznaMB_FE.Pages.Dialogs
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject NavigationManager NavigationManager
+
+<style>
+    .visit_complete
+    {
+        background-color:#C8E6C9;
+    }
+</style>
+
+<MudGrid Style="margin-top:5em;" Justify="Justify.Center">
+    <MudItem lg="12" md="12" sm="12" xs="12">
+        <MudCard Elevation="5" Class="table_card" >
+            <MudCardContent>
+
+            <MudTable ServerData="@(new Func<TableState, Task<TableData<Encounter>>>(ServerReload))" Dense="false" Hover="true" @ref="table" T="Encounter" OnRowClick="RowClickEvent">   
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Wizyty</MudText>
+                    <MudSpacer />
+                    <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortLabel="ident" T="Encounter">Identyfikator wizyty</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="poradnia" T="Encounter">Poradnia</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="pacjent" T="Encounter">Pacjent</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="termin" T="Encounter">Termin wizyty</MudTableSortLabel></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    @if(context.dateTo is not null)
+                    {
+                        <MudTd Class="visit_complete" DataLabel="Identyfikator wizyty">@context.encounterId</MudTd>
+                        <MudTd Class="visit_complete" DataLabel="Poradnia">@context.location?.name</MudTd>
+                        <MudTd Class="visit_complete" DataLabel="Pacjent">@context.patient?.lastname @context.patient?.firstname</MudTd>
+                        <MudTd Class="visit_complete" DataLabel="Data czas rozpoczęcia wizyty">@context.dateFrom?.ToString("dd-MM-yyyy HH:mm")</MudTd>
+                    }
+                    else
+                    {
+                        <MudTd DataLabel="Identyfikator wizyty">@context.encounterId</MudTd>
+                        <MudTd DataLabel="Poradnia">@context.location?.name</MudTd>
+                        <MudTd DataLabel="Pacjent">@context.patient?.lastname @context.patient?.firstname</MudTd>
+                        <MudTd DataLabel="Data czas rozpoczęcia wizyty">@context.dateFrom?.ToString("dd-MM-yyyy HH:mm")</MudTd>
+                    }
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager RowsPerPageString="Ilość wierszy na stronę" InfoFormat="@infoFormat"/>
+                </PagerContent>
+            </MudTable>
+          </MudCardContent>
+        </MudCard>
+    </MudItem>
+     <MudItem lg="12" md="12" sm="12" xs="12" Class="mt-5">
+          <div style="float:right;">
+              <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@OpenDialog" > 
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Zaplanuj nową wizytę
+              </MudButton>
+          </div>
+     </MudItem>
+</MudGrid>
+
+@code {
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int? currentUserLocationId = ProjectVariables.CurrentUserLocationId;
+        if(currentUserLocationId is not null)
+        {
+            Elements = await _serverHelper.GetEncounterPageByLocationIdAndUserPatient(currentUserLocationId,0,100,null);
+        }
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<Encounter> tableRowClickEventArgs)
+    {
+        Console.Write("Klik na tabelce" + tableRowClickEventArgs.Item?.encounterId);
+        if(tableRowClickEventArgs.Item is not null)
+        {
+            ProjectVariables.setCurrentEncounter(tableRowClickEventArgs.Item);
+            NavigationManager.NavigateTo(ProjectVariables.VisitDetailsURL);
+        }
+    }
+
+}

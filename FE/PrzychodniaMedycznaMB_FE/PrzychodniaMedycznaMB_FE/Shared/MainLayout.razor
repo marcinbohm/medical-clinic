@@ -1,0 +1,29 @@
+﻿@using MudBlazor
+@inherits LayoutComponentBase
+@inject NavigationManager navManager
+
+<MudLayout>
+    <BarLayout OnSidebarToggled="ToggleSidebar"/>
+    <NavMenu SideBarOpen="_sidebarOpen" />
+    <MudMainContent Class="pt-5 px-1">
+        <MudContainer Class="mt-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+@code {
+
+    private bool _sidebarOpen = false;
+    private void ToggleSidebar() => _sidebarOpen = !_sidebarOpen;
+    
+    protected override Task OnInitializedAsync()
+    {
+        bool bLogged = CheckForLogin();
+        return base.OnInitializedAsync();
+
+    }
+}

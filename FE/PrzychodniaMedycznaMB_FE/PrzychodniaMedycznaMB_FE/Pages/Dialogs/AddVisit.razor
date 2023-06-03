@@ -1,0 +1,146 @@
+﻿@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Zaplanuj nową wizytę
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+            <MudGrid Class="mt-2">
+                     <MudItem lg="6" md="6" sm="6" xs="12">
+
+                             <MudAutocomplete T="Location" Label="Wybierz poradnie" @bind-Value="tmpLocation"  SearchFunc="@SearchLocations" ToStringFunc="@(e=> e==null?null : $"{e.name} ({e.postalCode}, {e.city})")">
+                                <NoItemsTemplate>
+                                    <MudText Align="Align.Center" Class="px-4 py-1">
+                                        Lista poradni jest pusta
+                                    </MudText>
+                                </NoItemsTemplate>
+                            </MudAutocomplete>
+
+                     </MudItem>
+
+                     <MudItem lg="6" md="6" sm="6" xs="12">
+
+                            <MudAutocomplete T="Practitioner" Label="Wybierz lekarza" @bind-Value="tmpDoctor" SearchFunc="@SearchDoctors" ToStringFunc="@(e=> e==null?null : $"{e.firstname} {e.lastname}")">
+                                <NoItemsTemplate>
+                                    <MudText Align="Align.Center" Class="px-4 py-1">
+                                        Lista lekarzy jest pusta
+                                    </MudText>
+                                </NoItemsTemplate>
+                            </MudAutocomplete>
+
+                     </MudItem>
+
+                     <MudItem lg="12" md="12" sm="12" xs="12">
+
+                         <MudAutocomplete T="Patient" Label="Wybierz pacjenta" @bind-Value="tmpPatient" SearchFunc="@SearchPatients" ToStringFunc="@(e=> e==null?null : $"{e.firstname} {e.lastname}")">
+                                <NoItemsTemplate>
+                                    <MudText Align="Align.Center" Class="px-4 py-1">
+                                        Lista pacjentów jest pusta
+                                    </MudText>
+                                </NoItemsTemplate>
+                         </MudAutocomplete>
+
+                    </MudItem>
+
+                     <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="DateTime?" Format="s" @bind-Value="newVisit.dateFrom" Label="Data godzina wizyty" InputType="InputType.DateTimeLocal"/>
+
+                    </MudItem>
+
+                    
+                    <MudItem lg="6" md="6" sm="6" xs="12">
+
+                         <MudTextField T="string" @bind-Value="newVisit.icd10" Label="Rozpoznanie zasadnicze" Variant="Variant.Text"/>
+
+                    </MudItem>
+
+            </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Anuluj</MudButton>
+        <MudButton Color="Color.Success" OnClick="AddVisist"><MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Dodaj wizytę</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    private EncounterInput newVisit = new();
+
+    public Location loc { get; set; } = default!;
+
+    public Location tmpLocation { 
+        get
+        {
+            return loc;
+        }
+        set
+        {
+            loc = value;
+            SearchDoctors("");
+        }
+    } 
+
+    public Patient tmpPatient { get; set; } = default!;
+    public Practitioner tmpDoctor { get; set; } = default!;
+
+    private List<Location>? locations { get; set; } = new();
+    private List<Patient>? patients { get; set; } = new();
+    private List<Practitioner>? doctors { get; set; } = new();
+
+    private async Task<IEnumerable<Location>> SearchLocations(string value)
+    {
+        return await _serverHelper.GetLocationList();
+    }
+
+    private async Task<IEnumerable<Patient>> SearchPatients(string value)
+    {
+        int? currentUserLocationId = ProjectVariables.CurrentUserLocationId;
+        if(currentUserLocationId is not null)
+        {
+            return await _serverHelper.GetPatientsByLocationId(currentUserLocationId, 0, 100);
+        }
+        return Array.Empty<Patient>();
+    }
+
+    public async Task<IEnumerable<Practitioner>> SearchDoctors(string value)
+    {
+        if(tmpLocation is not null)
+        {
+            tmpDoctor = default!;
+            return await _serverHelper.GetPractitionerByLocationId(tmpLocation.locationId, 0, 100);
+        }
+        return Array.Empty<Practitioner>();
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task AddVisist()
+    {
+        newVisit.encounterId = null;
+        newVisit.locationId = tmpLocation.locationId;
+        newVisit.patientId = tmpPatient.userId;
+        newVisit.createdAt = DateTime.Now;
+        newVisit.createdBy = ProjectVariables.CurrentUserId;
+        newVisit.practitionerId = tmpDoctor.userId;
+
+
+        bool result = await _serverHelper.AddEncounter(newVisit);
+
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+}

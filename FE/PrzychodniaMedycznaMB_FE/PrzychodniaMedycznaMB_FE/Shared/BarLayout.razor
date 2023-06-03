@@ -1,0 +1,72 @@
+﻿@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models
+@using PrzychodniaMedycznaMB_FE.Pages.Authorization
+@using PrzychodniaMedycznaMB_FE.Pages.Dialogs
+@inject NavigationManager navManager
+@inject IDialogService Dialog
+@inject ISnackbar Snackbar
+
+<MudAppBar Elevation="4" Dense="true" >
+    
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Edge="Edge.Start" Title="Menu"
+                   OnClick="async () => await OnSidebarToggled.InvokeAsync()" Color="Color.Inherit"/>
+
+    <MudSpacer />
+
+    <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit">
+        <MudMenuItem OnClick="() => ZmienHaslo()">Zmień hasło</MudMenuItem>
+        <MudMenuItem OnClick="() => Wyloguj()">Wyloguj</MudMenuItem>
+    </MudMenu>
+
+    <MudText Typo="Typo.subtitle1" Color="Color.Inherit">@currentUser</MudText>
+
+</MudAppBar>
+
+@code {
+
+    [Parameter]
+    public EventCallback OnSidebarToggled { get; set; }
+
+    public String? currentUser = ProjectVariables.CurrentLogin;
+
+    public async Task ZmienHaslo()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+       // var dialog = await Dialog.ShowAsync<AddVisit>("Zaplanuj wizytę", parameters, options);
+        var dialog = await Dialog.ShowAsync<ChangePassword>("Dodaj pacjenta", options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await ShowAlert((bool)result.Data);
+        }
+    }
+
+    private async Task ShowAlert(bool result)
+    {
+        Snackbar.Clear();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+
+        if(result)
+        {
+            Snackbar.Add("Hasło zostało zaktualizowane", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Nie udało się zaktualizować hasła", Severity.Error);
+        }
+
+
+        await Task.Delay(500);
+    }
+
+    public void Wyloguj()
+    {
+         ProjectVariables.Logout();
+         navManager.NavigateTo(ProjectVariables.LoginPageURL);
+    }
+}

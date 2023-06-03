@@ -1,0 +1,188 @@
+﻿@layout LoginLayout
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using PrzychodniaMedycznaMB_FE.GQL
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+@page "/"
+
+<style>
+
+    .login-button {
+    background-color: #1E3A8A !important;
+    color: white !important;
+    border-radius: 8px;
+    }
+
+    .login_body_color{
+         background-color: #538EE7 !important;
+    }
+
+    .login_baner{
+         color: white !important;
+    }
+
+    .login_input{
+        background-color:white !important;
+    }
+    .foo
+    {
+         position: fixed;
+         bottom: 3%;
+         right: 3%;
+    }
+
+    .login_div .mud-button {
+        font-family: 'Inter' !important;
+        font-style: normal !important;
+        font-size: 1.0em;
+        line-height: 130%;
+        font-weight: 500;
+        text-transform: none;
+    }
+
+    .login_images{
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+
+    .loading_data{
+    margin-top: 10%;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+</style>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudGrid Justify="Justify.Center" Spacing="0">
+
+        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+        <MudItem xs="5" sm="5" lg="5" md="5" Class="mt-5">
+            <div class="login_images">
+            <MudImage Fluid=true Src="./images/Lekarz.png" ></MudImage>
+            </div>
+        </MudItem>
+        </MudHidden>
+
+        <MudItem xs="12" sm="7" lg="7" md="7" >
+            <MudPaper Class="pa-16" Elevation="0" >
+
+                <MudGrid>
+                    <MudItem xs="1" sm="1" lg="1" md="1">
+                     </MudItem>
+                     <MudItem xs="10" sm="10" lg="10" md="10" >
+                            
+                            <MudText Style="margin-top:35%" Typo="Typo.body1">Login</MudText>
+                            <MudTextField
+                                    Margin="Margin.Dense"
+                                    Variant="Variant.Outlined"
+                                    aria-label="Login"
+                                    Class="mt-1 login_input"
+                                    @bind-Value="model.Username" 
+                                    For="@(() => model.Username)"/>
+
+                            <MudText Style="margin-top:5%" Typo="Typo.body1">Hasło</MudText>
+                            <MudTextField 
+                                    Margin="Margin.Dense"
+                                    Variant="Variant.Outlined"
+                                    aria-label="Hasło" 
+                                    Class="mt-1 login_input"
+                                    @bind-Value="model.Password"
+                                    For="@(() => model.Password)" 
+                                    InputType="InputType.Password"/>
+
+
+                            @if (showAlert)
+                            {
+                                <MudAlert Severity="Severity.Error" Class="mt-3" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(true))">Niepoprawny login lub hasło</MudAlert>
+                            }
+                            
+                            
+                            <MudButton ButtonType="ButtonType.Submit" Style="margin-top:5%" FullWidth="true" Variant="Variant.Filled" Class="login-button">Zaloguj się</MudButton>
+                            
+                             
+                    </MudItem>
+                     <MudItem xs="1" sm="1" lg="1" md="1">
+
+                     </MudItem>
+                </MudGrid>
+                    
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+
+@code {
+
+    #region Alert
+
+    private bool showAlert { get; set; } = false;
+
+
+    private void CloseMe(bool value)
+    {
+        if (value)
+        {
+            showAlert = false;
+        }
+        else
+        {
+            showAlert = true;
+            model.Username = default!;
+            model.Password = default!;
+        }
+    }
+    #endregion
+
+    #region Login Model
+    public class LoginAccountForm
+    {
+        [Required] public string Username { get; set; } = default!;
+
+        [Required] public string Password { get; set; } = default!;
+    }
+
+    LoginAccountForm model = new LoginAccountForm();
+
+    #endregion
+
+
+    private bool success { get; set; } = false;
+
+    private async void OnValidSubmit(EditContext context)
+    {
+
+        Username =  model.Username;
+        Password = model.Password;
+
+        ProjectVariables.CurrentLogin = model.Username;
+        ProjectVariables.CurrentPassword = model.Password;
+
+
+        if (await TryToLogin())
+        {
+            NavManager.NavigateTo(ProjectVariables.PlannedVisitsURL);
+        }
+        else
+        {
+            
+            CloseMe(false);
+        }
+       
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Console.Write("OnInitializedAsync");        
+
+        Console.Write("After OnInitializedAsync");
+        return base.OnInitializedAsync();
+
+    }
+}

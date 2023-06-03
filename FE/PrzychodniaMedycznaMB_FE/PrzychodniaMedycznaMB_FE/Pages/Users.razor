@@ -1,0 +1,210 @@
+﻿@page "/users"
+@using MudBlazor
+@using PrzychodniaMedycznaMB_FE.GQL
+@using PrzychodniaMedycznaMB_FE.GQL.Models.SchemaModels
+@using PrzychodniaMedycznaMB_FE.GQL.Server
+@using PrzychodniaMedycznaMB_FE.Pages.Dialogs
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<style>
+    .administrator
+    {
+        background-color:#FFCDD2;
+    }
+    .lekarz
+    {
+        background-color:#C5CAE9;
+    }
+    .rejestratorka
+    {
+        background-color:#B2DFDB;
+    }
+    .pielegniarka
+    {
+        background-color:#F8BBD0;
+    }
+</style>
+
+<MudGrid Style="margin-top:5em;" Justify="Justify.Center">
+    <MudItem lg="12" md="12" sm="12" xs="12">
+        <MudCard Elevation="5" Class="table_card" >
+            <MudCardContent>
+                <MudAvatar Color="Color.Primary">L</MudAvatar>
+                <MudAvatar Color="Color.Secondary">P</MudAvatar>
+                <MudAvatar Color="Color.Tertiary">R</MudAvatar>
+                <MudAvatar Color="Color.Error">A</MudAvatar>
+
+            <MudTable Class="mt-4" ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))" Dense="false" Hover="true" @ref="table">   
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Użytkownicy</MudText>
+                    <MudSpacer />
+                    <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortLabel="ident" T="User">Identyfikator użytkowanika</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="pacjent" T="User">Użytkownik</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="email" T="User">Adres e-mail</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="login" T="User">Login</MudTableSortLabel></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                        @if(context.userType == 1)
+                        {
+                              <MudTd Class="administrator" DataLabel="Identyfikator pacjenta">@context.userId</MudTd>
+                              <MudTd Class="administrator" DataLabel="Pacjent">@context.lastname @context.firstname </MudTd>
+                              <MudTd Class="administrator" DataLabel="Adres e-mail">@context.email</MudTd>
+                              <MudTd Class="administrator" DataLabel="Login">@context.login</MudTd>
+                        }
+                        @if(context.userType == 2)
+                        {
+                              <MudTd Class="pielegniarka" DataLabel="Identyfikator pacjenta">@context.userId</MudTd>
+                              <MudTd Class="pielegniarka" DataLabel="Pacjent">@context.lastname @context.firstname </MudTd>
+                              <MudTd Class="pielegniarka" DataLabel="Adres e-mail">@context.email</MudTd>
+                              <MudTd Class="pielegniarka" DataLabel="Login">@context.login</MudTd>
+                        }
+                        @if(context.userType == 3)
+                        {
+                              <MudTd Class="lekarz" DataLabel="Identyfikator pacjenta">@context.userId</MudTd>
+                              <MudTd Class="lekarz" DataLabel="Pacjent">@context.lastname @context.firstname </MudTd>
+                              <MudTd Class="lekarz" DataLabel="Adres e-mail">@context.email</MudTd>
+                              <MudTd Class="lekarz" DataLabel="Login">@context.login</MudTd>
+                        }
+                        @if(context.userType == 4)
+                        {
+                              <MudTd Class="rejestratorka" DataLabel="Identyfikator pacjenta">@context.userId</MudTd>
+                              <MudTd Class="rejestratorka" DataLabel="Pacjent">@context.lastname @context.firstname </MudTd>
+                              <MudTd Class="rejestratorka" DataLabel="Adres e-mail">@context.email</MudTd>
+                              <MudTd Class="rejestratorka" DataLabel="Login">@context.login</MudTd>
+                        }
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager RowsPerPageString="Ilość wierszy na stronę" InfoFormat="@infoFormat"/>
+                </PagerContent>
+            </MudTable>
+          </MudCardContent>
+        </MudCard>
+    </MudItem>
+     <MudItem lg="12" md="12" sm="12" xs="12" Class="mt-5">
+          <div style="float:right;">
+              <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@OpenDialog" > 
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" /> &nbsp Dodaj nowego użytkownika
+              </MudButton>
+          </div>
+     </MudItem>
+</MudGrid>
+
+@code {
+
+    [Inject] public IServerHelper _serverHelper { get; set; } = default!;
+
+    private MudTable<User> table = default!;
+    private IEnumerable<User> pagedData = default!;
+    private int totalItems;
+    private string searchString = "";
+    private User selectedItem1 = default!;
+
+    private string infoFormat = "{first_item}-{last_item} z {all_items}";
+    private HashSet<User> selectedItems = new HashSet<User>();
+
+    private async Task<TableData<User>> ServerReload(TableState state)
+    {
+        IEnumerable<User> data = await _serverHelper.GetUserList();
+        await Task.Delay(100);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.firstname is not null && element.firstname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.lastname is not null && element.lastname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.email is not null && element.email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.login is not null && element.login.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.userId is not null && Convert.ToString(element.userId).Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+
+        switch (state.SortLabel)
+        {
+            case "ident":
+                data = data.OrderByDirection(state.SortDirection, o => o.userId);
+                break;
+
+            case "pacjent":
+                data = data.OrderByDirection(state.SortDirection, o => o.lastname);
+                break;
+
+            case "email":
+                data = data.OrderByDirection(state.SortDirection, o => o.email);
+                break;
+            case "login":
+                data = data.OrderByDirection(state.SortDirection, o => o.login);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<User>() {TotalItems = totalItems, Items = pagedData};
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    private IEnumerable<User>? Elements = new List<User>();
+
+    private async Task ShowAlert(bool result)
+    {
+        Snackbar.Clear();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+
+        if(result)
+        {
+            Snackbar.Add("Dodano nowego użytkownika", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Nie udało się dodać nowego użytkownika", Severity.Error);
+        }
+
+
+        await Task.Delay(500);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int? currentUserLocationId = ProjectVariables.CurrentUserLocationId;
+        if(currentUserLocationId is not null)
+        {
+            Elements = await _serverHelper.GetUserList();
+        }
+    }
+
+    private async Task OpenDialog()
+    {
+
+        //var parameters = new DialogParameters { ["server"]= 'a' };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+       // var dialog = await Dialog.ShowAsync<AddVisit>("Zaplanuj wizytę", parameters, options);
+        var dialog = await Dialog.ShowAsync<AddUser>("Dodaj użytkownika", options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await ShowAlert((bool)result.Data);
+            await Task.Delay(500);
+            await table.ReloadServerData();
+        }
+
+    }
+
+}
+
